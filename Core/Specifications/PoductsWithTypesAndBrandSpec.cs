@@ -9,19 +9,23 @@ namespace Core.Specifications
 {
     public class PoductsWithTypesAndBrandSpec : BaseISpecifications<Product>
     {
-        public PoductsWithTypesAndBrandSpec(string sort ,int? brandId, int? typeId) 
-            :base( x=> (!brandId.HasValue || x.ProductBrandId== brandId) &&
-                    (!typeId.HasValue || x.ProductTypeId == typeId)
+        public PoductsWithTypesAndBrandSpec(ProductSpecParams productParams)
+         : base(P =>
+                 
+                  (!productParams.BrandId.HasValue || P.ProductBrandId == productParams.BrandId.Value) &&
+                  (!productParams.TypeId.HasValue || P.ProductTypeId == productParams.TypeId.Value)
 
-            ) 
-        { 
-        AddInclude(x => x.ProductBrand);
-        AddInclude(x => x.ProductTYPE);
-        AddOrderBy(x => x.Name);
-            
-            if (!string.IsNullOrEmpty(sort))
+               )
+        {
+            // Add Includes To Query
+            AddProductIncludes();
+
+            ApplyingPaging(productParams.PageSize * (productParams.PageIndex - 1), productParams.PageSize);
+
+            // Add OrderBy To Query
+            if (!string.IsNullOrEmpty(productParams.Sort))
             {
-                switch (sort)
+                switch (productParams.Sort)
                 {
                     case "priceAsc":
                         AddOrderBy(P => P.Price);
@@ -34,11 +38,24 @@ namespace Core.Specifications
                         break;
                 }
             }
+
+
+
         }
-        public PoductsWithTypesAndBrandSpec(int id) : base(x=>x.Id==id)
+
+        // This Ctor Is Using To Get Specific Product
+        public PoductsWithTypesAndBrandSpec(int Id) : base(P => P.Id == Id)
         {
-            AddInclude(x => x.ProductBrand);
-            AddInclude(x => x.ProductTYPE);
+            AddProductIncludes();
+        }
+
+
+        private void AddProductIncludes()
+        {
+
+            AddInclude(P => P.ProductBrand);
+            AddInclude(P => P.ProductTYPE);
+
         }
     }
 }

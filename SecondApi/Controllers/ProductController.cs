@@ -28,9 +28,10 @@ namespace SecondApi.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<ProductToReturn>>> GetProducts(string sort ,int? brandId , int ? typeId )
+        public async Task<ActionResult<IReadOnlyList<ProductToReturn>>> GetProducts([FromQuery] ProductSpecParams productParams)
         {
-            var spec = new PoductsWithTypesAndBrandSpec(sort,brandId,typeId);
+            var spec = new PoductsWithTypesAndBrandSpec(productParams);
+          
             var products =await _productsrepo.ListAsync(spec);
             return Ok(_mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturn>>(products));
         }
